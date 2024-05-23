@@ -12,6 +12,9 @@ window.onload = () => {
     const username = localStorage.getItem('username')
     const gun = localStorage.getItem('gun')
     const target = localStorage.getItem('target')
+    const level = localStorage.getItem('level')
+
+    document.getElementById('username').innerText = username;
 
     const mouse = {
         x: 10,
@@ -31,10 +34,10 @@ window.onload = () => {
         mouse.y = undefined
     }
     canvas.onmousedown = () => {
-      mouse.isClicked = true
+        mouse.isClicked = true
     }
     canvas.onmouseup = () => {
-      mouse.isClicked = false
+        mouse.isClicked = false
     }
 
     class Game {
@@ -48,6 +51,13 @@ window.onload = () => {
             this.score = 0
             this.time = 0
             this.durationEffect = 0
+            if (level === 'easy') {
+                this.duration = 30 * 1000
+            } else if (level === 'medium') {
+                this.duration = 20 * 1000
+            } else if (level === 'hard') {
+                this.duration = 15 * 1000
+            }
         }
 
         draw() {
@@ -58,7 +68,7 @@ window.onload = () => {
                 target.draw(ctx)
             })
             this.effects.forEach((effect) => {
-              effect.draw(ctx)
+                effect.draw(ctx)
             })
             this.gun.draw(ctx)
             this.cursor.draw(ctx)
@@ -66,7 +76,10 @@ window.onload = () => {
         update(deltaTime) {
             this.time += deltaTime
 
-            console.log(mouse.x, mouse.y);
+            document.getElementById('score').innerText = `Score: ${this.score}`;
+            document.getElementById('duration').innerText = `Duration: 00:${Math.floor(this.duration / 1000)}`;
+
+            this.duration -= deltaTime
 
             if (this.time > 3000) {
                 this.targets.push(new Target(this, target))
@@ -84,8 +97,8 @@ window.onload = () => {
                 }
             })
             this.effects.forEach((effect, index) => {
-              effect.update()
-              if (effect.markedForDeletion) this.effects.splice(index, 1)
+                effect.update()
+                if (effect.markedForDeletion) this.effects.splice(index, 1)
             })
             this.cursor.update(mouse.x, mouse.y)
         }
