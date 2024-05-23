@@ -13,6 +13,11 @@ window.onload = () => {
     const gun = localStorage.getItem('gun')
     const target = localStorage.getItem('target')
     const level = localStorage.getItem('level')
+    const users = JSON.parse(localStorage.getItem('users')) || []
+
+    users.forEach((user) => {
+        createElement(user.username, user.score);
+    })
 
     document.getElementById('username').innerText = username;
 
@@ -59,6 +64,7 @@ window.onload = () => {
                 this.duration = 15 * 1000
             }
             this.gameOver = false
+            this.elementAdded = false
         }
 
         draw() {
@@ -79,6 +85,27 @@ window.onload = () => {
                 ctx.fillStyle = 'red'
                 ctx.font = '50px Arial'
                 ctx.fillText('Game Over!', canvas.width / 2 - 100, canvas.height / 2)
+
+                if (!this.elementAdded) {
+                    createElement(username, this.score)
+
+                    const user = {
+                        username: username,
+                        score: this.score
+                    }
+
+                    const existingUser = users.find(_user => _user.name === user.username)
+
+                    if (existingUser) {
+                        existingUser.score = user.score;
+                    } else {
+                        users.push(user)
+                    }
+                    localStorage.setItem('users', JSON.stringify(users));
+
+                    this.elementAdded = true
+                }
+
                 return
             }
             this.time += deltaTime
@@ -139,6 +166,37 @@ window.onload = () => {
             return true
         } else {
             return false
+        }
+    }
+
+    function createElement(_username, _score) {
+        const username = document.createElement('p');
+        username.className = 'username';
+        const usernameText = document.createTextNode(_username);
+        username.appendChild(usernameText);
+
+        const score = document.createElement('p');
+        score.className = 'score';
+        const scoreText = document.createTextNode(`Score: ${_score}`);
+        score.appendChild(scoreText);
+
+        const div = document.createElement('div');
+        div.appendChild(username);
+        div.appendChild(score);
+
+        const button = document.createElement('button');
+        button.className = 'detail-btn';
+        button.textContent = 'Detail';
+
+        const li = document.createElement('li');
+        li.appendChild(div);
+        li.appendChild(button);
+
+        const ul = document.getElementById('users');
+        if (ul) {
+            ul.appendChild(li);
+        } else {
+            console.error("Element with id 'users' not found.");
         }
     }
 
