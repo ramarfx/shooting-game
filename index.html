@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Shooter</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="container">
+      <div class="main-menu">
+        <img src="assets/Sprites/shooter.png" alt="" />
+
+        <input type="text" class="input" placeholder="input username" />
+        <select name="level">
+          <option value="" selected disabled>choose level</option>
+          <option value="easy">easy</option>
+          <option value="medium">medium</option>
+          <option value="hard">hard</option>
+        </select>
+
+        <div class="guns-group">
+          <div class="radio">
+            <label for="gun1"
+              ><img src="assets/Sprites/gun1.png" class="gun-image" alt="gun1"
+            /></label>
+            <input type="radio" name="gun" id="gun1" value="gun1" />
+          </div>
+          <div class="radio">
+            <label for="gun2"
+              ><img src="assets/Sprites/gun2.png" class="gun-image" alt="gun2"
+            /></label>
+            <input type="radio" name="gun" id="gun2" value="gun2" />
+          </div>
+        </div>
+
+        <div class="targets-group">
+          <div class="radio">
+            <label for="target1"
+              ><img
+                src="assets/Sprites/target1.png"
+                class="gun-image"
+                alt="target1"
+            /></label>
+            <input type="radio" name="target" id="target1" value="target1" />
+          </div>
+          <div class="radio">
+            <label for="target2"
+              ><img
+                src="assets/Sprites/target2.png"
+                class="gun-image"
+                alt="target2"
+            /></label>
+            <input type="radio" name="target" id="target2" value="target2" />
+          </div>
+          <div class="radio">
+            <label for="target3"
+              ><img
+                src="assets/Sprites/target3.png"
+                class="gun-image"
+                alt="target3"
+            /></label>
+            <input type="radio" name="target" id="target3" value="target3" />
+          </div>
+        </div>
+
+        <div class="btn-group">
+          <button id="play">Play Game</button>
+          <button id="instruction">Instruction</button>
+        </div>
+      </div>
+
+      <div class="instruction">
+        <div class="header">
+          <h1>How to Play Game</h1>
+          <button class="close">X</button>
+        </div>
+
+        <p>1. Input Username</p>
+        <p>2. Point the pointer at the target</p>
+        <p>3. Click To Shoot</p>
+        <p>4. Get as many point as possible</p>
+        <p>5. Enjoy!</p>
+      </div>
+    </div>
+
+    <script>
+      const instruction = document.querySelector(".instruction");
+
+      document.getElementById("instruction").onclick = () => {
+        instruction.style.display = 'block'
+      };
+      document.querySelector(".close").onclick = () => {
+        instruction.style.display = 'none'
+      };
+
+      document.getElementById("play").onclick = () => {
+        localStorage.setItem(
+          "username",
+          document.querySelector(".main-menu input").value
+        );
+        localStorage.setItem(
+          "level",
+          document.querySelector(".main-menu select").value
+        );
+
+        localStorage.setItem(
+          'gun',
+          document.querySelector('input[name="gun"]:checked').value
+        )
+
+        localStorage.setItem(
+          'target',
+          document.querySelector('input[name="target"]:checked').value
+        )
+
+        window.location.href = "game.html";
+      };
+    </script>
+  </body>
+</html>
