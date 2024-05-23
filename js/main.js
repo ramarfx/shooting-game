@@ -58,6 +58,7 @@ window.onload = () => {
             } else if (level === 'hard') {
                 this.duration = 15 * 1000
             }
+            this.gameOver = false
         }
 
         draw() {
@@ -74,12 +75,22 @@ window.onload = () => {
             this.cursor.draw(ctx)
         }
         update(deltaTime) {
+            if (this.gameOver) {
+                ctx.fillStyle = 'red'
+                ctx.font = '50px Arial'
+                ctx.fillText('Game Over!', canvas.width / 2 - 100, canvas.height / 2)
+                return
+            }
             this.time += deltaTime
 
             document.getElementById('score').innerText = `Score: ${this.score}`;
             document.getElementById('duration').innerText = `Duration: 00:${Math.floor(this.duration / 1000)}`;
 
             this.duration -= deltaTime
+
+            if (this.duration <= 0) {
+                this.gameOver = true
+            }
 
             if (this.time > 3000) {
                 this.targets.push(new Target(this, target))
