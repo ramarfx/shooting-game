@@ -13,7 +13,9 @@ window.onload = () => {
     const gun = localStorage.getItem('gun')
     const target = localStorage.getItem('target')
     const level = localStorage.getItem('level')
-    const users = JSON.parse(localStorage.getItem('users')) || []
+    let users = JSON.parse(localStorage.getItem('users')) || []
+
+    const pauseElement = document.getElementById('pause')
 
     users.forEach((user) => {
         createElement(user.username, user.score);
@@ -65,6 +67,8 @@ window.onload = () => {
             }
             this.gameOver = false
             this.elementAdded = false
+            this.startTime = 4 * 1000
+            this.isPaused = false
         }
 
         draw() {
@@ -87,20 +91,23 @@ window.onload = () => {
                 ctx.fillText('Game Over!', canvas.width / 2 - 100, canvas.height / 2)
 
                 if (!this.elementAdded) {
-                    createElement(username, this.score)
+
 
                     const user = {
                         username: username,
                         score: this.score
                     }
 
-                    const existingUser = users.find(_user => _user.name === user.username)
+                    const existingUser = users.find(_user => _user.username === user.username)
+                    console.log(existingUser);
 
                     if (existingUser) {
                         existingUser.score = user.score;
                     } else {
                         users.push(user)
+                        createElement(username, this.score)
                     }
+
                     localStorage.setItem('users', JSON.stringify(users));
 
                     this.elementAdded = true
@@ -108,37 +115,62 @@ window.onload = () => {
 
                 return
             }
-            this.time += deltaTime
-
-            document.getElementById('score').innerText = `Score: ${this.score}`;
-            document.getElementById('duration').innerText = `Duration: 00:${Math.floor(this.duration / 1000)}`;
-
-            this.duration -= deltaTime
-
-            if (this.duration <= 0) {
-                this.gameOver = true
+            // start game
+            if (this.startTime > 0) {
+                ctx.fillStyle = 'black'
+                ctx.font = '50px Arial'
+                ctx.fillText(`${Math.floor(this.startTime / 1000)}`, canvas.width / 2 - 50, canvas.height / 2)
             }
 
-            if (this.time > 3000) {
-                this.targets.push(new Target(this, target))
+            this.startTime -= deltaTime
 
-                this.time = 0
-            } else {
+            // pause game
+            window.onkeydown = (e) => {
+              if (e.code === 'Escape') {
+                this.isPaused = !this.isPaused
+                pauseElement.classList.toggle('active')
+              }
+            }
+            const pauseBtn = document.getElementById('pause-btn')
+            pauseBtn.onclick = () => {
+              this.isPaused = false
+              pauseElement.classList.remove('active')
+            }
+            
+            if (this.startTime < 0 && !this.isPaused) {
                 this.time += deltaTime
-            }
 
-            this.targets.forEach((target) => {
-                if (mouse.isClicked && checkCollision(mouse, target)) {
-                    this.score += 10
-                    this.targets.splice(this.targets.indexOf(target), 1);
-                    this.effects.push(new Effect(mouse.x, mouse.y))
+                document.getElementById('score').innerText = `Score: ${this.score}`;
+                document.getElementById('duration').innerText = `Duration: 00:${Math.floor(this.duration / 1000)}`;
+
+                this.duration -= deltaTime
+
+                if (this.duration <= 0) {
+                    this.gameOver = true
                 }
-            })
-            this.effects.forEach((effect, index) => {
-                effect.update()
-                if (effect.markedForDeletion) this.effects.splice(index, 1)
-            })
-            this.cursor.update(mouse.x, mouse.y)
+
+                if (this.time > 3000) {
+                    this.targets.push(new Target(this, target))
+
+                    this.time = 0
+                } else {
+                    this.time += deltaTime
+                }
+
+                this.targets.forEach((target) => {
+                    if (mouse.isClicked && checkCollision(mouse, target)) {
+                        this.score += 10
+                        this.targets.splice(this.targets.indexOf(target), 1);
+                        this.effects.push(new Effect(mouse.x, mouse.y))
+                    }
+                })
+                this.effects.forEach((effect, index) => {
+                    effect.update()
+                    if (effect.markedForDeletion) this.effects.splice(index, 1)
+                })
+                this.cursor.update(mouse.x, mouse.y)
+                this.gun.update(ctx)
+            }
         }
     }
 
@@ -198,6 +230,10 @@ window.onload = () => {
         } else {
             console.error("Element with id 'users' not found.");
         }
+    }
+
+    window.onresize = () => {
+        canvasPosition = canvas.getBoundingClientRect()
     }
 
     animate(0)
